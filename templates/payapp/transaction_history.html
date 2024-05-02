@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+{% endblock %}
+{% block content %}
+    
+    <div class="text-center mb-4">
+        <!-- if admin login no balance to show -->
+        {% if user.is_superuser %}
+        <h1>Hello {{ request.user.username }} </h1>
+        {% else %}
+        <h1>Hello {{ request.user.username }} </h1>
+        <h2 class="mb-3">Your current balance is: {{ currency_symbol }}{{ request.user.userprofile.balance }}</h2>
+
+            <!-- Container for common actions -->
+            <div class="card">
+                <h3 class="card-header">Common Actions</h3>
+                <div class="card-body">
+                    <a href="{% url 'transfer_money' %}" class="btn action-btn">Transfer Money</a>
+                    <a href="{% url 'request_money' %}" class="btn action-btn">Request Money</a>
+                </div>
+            </div>
+
+        {% endif %}
+    </div>
+
+    {% if incoming_requests %}
+        <div class="text-center mb-4">
+            <h2>Incoming Money Requests</h2>
+            {% for request in incoming_requests %}
+                <div class="alert alert-info d-flex justify-content-between align-items-center" role="alert">
+                    <div class="request-info">
+                        {{ request.sender__username }} has requested {{ currency_symbol }}{{ request.converted_amount }} for "{{ request.reason }}"
+                    </div>
+                    <div>
+                        <form method="post" action="{% url 'accept_request' request.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">Accept</button>
+                        </form>
+                        <form method="post" action="{% url 'decline_request' request.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Decline</button>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="alert alert-secondary" role="alert">No incoming money requests.</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+    {% if user.is_superuser %}
+
+        <!-- Transactions Table -->
+        <div id="transactionsView" class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        All Transactions
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Sender</th>
+                                <th>Amount</th>
+                                <th>Recipient</th>
+                                <th>Timestamp</th>
+                                
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for transaction in sent_transactions %}
+                                <tr>
+                                    <td>{{ transaction.sender.username }}</td>
+                                    <td>{{ currency_symbol }}{{ transaction.amount }}</td>
+                                    <td>{{ transaction.recipient.username }}</td>
+                                    <td>{{ transaction.timestamp }}</td>
+                                    
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3">No transactions found</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       
+        
+        
+    {% else %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Sent Transactions
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for transaction in sent_transactions %}
+
+                            <li class="list-group-item">{{ currency_symbol }}{{ transaction.amount }} to {{ transaction.recipient }} at {{ transaction.timestamp }}</li>
+                        {% empty %}
+                            <li class="list-group-item">No transactions found</li>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Nothing to show :(</h5>
+                                </div>
+                                <div class="card-body cart">
+                                    <div class="col-sm-12 empty-cart-cls text-center">
+                                        <div class="spinner-grow text-light" role="status">
+                                            <span class="sr-only">waiting...</span>
+                                        </div>
+                                        <h3><strong>No Transactions Yet</strong></h3>
+                                        <h4>Send money to start using the app :)</h4>
+                                        <a href="{% url 'transfer_money' %}" class="btn btn-primary cart-btn-transform m-3" data-abc="true">Send</a>
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Received Transactions
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for transaction in received_transactions %}
+
+                            <li class="list-group-item">{{ currency_symbol }}{{ transaction.converted_amount }} from {{ transaction.sender }} at {{ transaction.timestamp }}</li>
+                        {% empty %}
+                            <li class="list-group-item">No transactions found</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
+{% endblock %}

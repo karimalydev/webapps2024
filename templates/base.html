@@ -1,0 +1,124 @@
+{% load static %} <!-- This tag is necessary to load static files -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}WebApp{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    {% block extra_styles %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div id="page-container">
+    <!-- Navigation bar -->
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    {% if user.is_superuser %}
+        <div class="container">
+            <a class="navbar-brand">PayApp</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ml-auto">
+                    {% if request.user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'transaction_history' %}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'create_admin' %}">CREATE ADMIN</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users' %}">View Users</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Sign Out</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                    {% endif %}
+
+                </ul>
+            </div>
+        </div>
+        
+        
+        
+        
+        
+        
+    {% else %}
+        <div class="container">
+            <a class="navbar-brand">PayApp</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ml-auto">
+                    {% if request.user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'transaction_history' %}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'transfer_money' %}">Transfer Money</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'request_money' %}">Request Money</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Sign Out</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                    {% endif %}
+
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+        
+    </nav>
+
+    <!-- Main content -->
+    <div id="content-wrap" class="container mt-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white text-center p-3 mt-auto">
+        &copy; 2024 WebApp2024. Karim Aly.
+    </footer>
+</div>
+
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+<style>
+    .action-btn {
+        color: black;
+        border: 2px solid blue;
+        border-radius: 20px;
+        background-color: transparent;
+        padding: 10px 20px;
+        margin: 10px;
+        transition: all 0.3s ease;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .action-btn:hover {
+        background-color: blue;
+        color: white;
+    }
+
+</style>
+</html>
